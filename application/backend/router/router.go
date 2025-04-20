@@ -42,15 +42,15 @@ func SetupRouter() *gin.Engine {
 	r.POST("/logout", con.Logout)
 	//查询用户的类型
 	r.POST("/getInfo", middleware.JWTAuthMiddleware(), con.GetInfo)
-	//农产品上链
+	//电子产品上链
 	r.POST("/uplink", middleware.JWTAuthMiddleware(), con.Uplink)
-	// 获取农产品的上链信息
-	r.POST("/getFruitInfo", con.GetFruitInfo)
-	// 获取用户的农产品ID列表
-	r.POST("/getFruitList", middleware.JWTAuthMiddleware(), con.GetFruitList)
-	// 获取所有的农产品信息
-	r.POST("/getAllFruitInfo", middleware.JWTAuthMiddleware(), con.GetAllFruitInfo)
-	// 获取农产品上链历史(溯源)
-	r.POST("/getFruitHistory", middleware.JWTAuthMiddleware(), con.GetFruitHistory)
+	// 获取电子产品的上链信息
+	r.POST("/getProductinfo", con.GetProductinfo)
+	// 获取用户的电子产品ID列表
+	r.POST("/getProductList", middleware.JWTAuthMiddleware(), con.GetProductList)
+	// 获取所有的电子产品信息
+	r.POST("/getAllProductInfo", middleware.JWTAuthMiddleware(), con.GetAllProductInfo)
+	// 获取电子产品上链历史(溯源)
+	r.POST("/getProductHistory", middleware.JWTAuthMiddleware(), con.GetProductHistory)
 	return r
 }

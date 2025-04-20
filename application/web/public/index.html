@@ -8,9 +8,8 @@
     <title><%= webpackConfig.name %></title>
   </head>
   <body>
-        <!-- 广告条幅 -->
+        <!-- banner-->
         <!-- <div class="advertisement-banner" id="advertisementBanner">
-          🚨 特别通知：本项目附带讲解课程（B站）、接付费远控搭建；另接项目定制开发、一对一带入门、团队培训！<a href="https://docs.qq.com/doc/DQ21lZ1dEdG5FWkJm">了解更多 </a>（此广告仅在演示站，部署后无广告）
           <span class="close-btn" onclick="closeBanner()" style="text-decoration:underline">关闭此广告</span>
         </div> -->
     <noscript>
@@ -20,10 +19,10 @@
     <!-- built files will be auto injected -->
   </body>
   <style>
-    /* 添加广告条样式 */
+
     .advertisement-banner {
-        background-color: #f8d7da; /* 红色背景 */
-        color: #721c24; /* 红色文字 */
+        background-color: #f8d7da; 
+        color: #721c24; 
         text-align: center;
         padding: 10px 0;
         font-size: 18px;
@@ -44,7 +43,7 @@
   <script>
     function closeBanner() {
       const banner = document.getElementById('advertisementBanner');
-      banner.style.display = 'none'; // 隐藏广告条
+      banner.style.display = 'none';
     }
   </script>
 </html>

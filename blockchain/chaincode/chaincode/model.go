@@ -5,108 +5,136 @@ package chaincode
 用户ID
 用户类型
 实名认证信息哈希,包括用户注册的姓名、身份证号、手机号、注册平台同意协议签名的哈希
-农产品列表
+电子产品列表
 */
 type User struct {
 	UserID       string   `json:"userID"`
 	UserType     string   `json:"userType"`
 	RealInfoHash string   `json:"realInfoHash"`
-	FruitList    []*Fruit `json:"fruitList"`
+	ProductList    []*Product `json:"productList"`
 }
 
 /*
-定义农产品结构体
+定义电子产品结构体
 溯源码
-种植户输入
 工厂输入
-运输司机输入
-商店输入
+经销商输入
+平台输入
+物流输入
+售后输入
 */
-type Fruit struct {
-	Traceability_code string        `json:"traceability_code"`
-	Farmer_input      Farmer_input  `json:"farmer_input"`
-	Factory_input     Factory_input `json:"factory_input"`
-	Driver_input      Driver_input  `json:"driver_input"`
-	Shop_input        Shop_input    `json:"shop_input"`
+type Product struct {
+	Traceability_code string         `json:"traceability_code"`
+	Factory_input     Factory_input  `json:"factory_input"`
+	Retailer_input    Retailer_input `json:"retailer_input"`
+	Platform_input    Platform_input `json:"platform_input"`
+    Logistic_input    Logistic_input `json:"logistic_input"`
+	Service_input     Service_input  `json:"service_input"`
 }
 
 // HistoryQueryResult structure used for handling result of history query
 type HistoryQueryResult struct {
-	Record    *Fruit `json:"record"`
+	Record    *Product `json:"record"`
 	TxId      string `json:"txId"`
 	Timestamp string `json:"timestamp"`
 	IsDelete  bool   `json:"isDelete"`
 }
 
 /*
-种植户
-农产品的溯源码，一物一码，主打高端市场（自动生成）
-农产品名称
-产地
-种植时间
-采摘时间
-种植户名称
-*/
-type Farmer_input struct {
-	Fa_fruitName   string `json:"fa_fruitName"`
-	Fa_origin      string `json:"fa_origin"`
-	Fa_plantTime   string `json:"fa_plantTime"`
-	Fa_pickingTime string `json:"fa_pickingTime"`
-	Fa_farmerName  string `json:"fa_farmerName"`
-	Fa_Txid        string `json:"fa_txid"`
-	Fa_Timestamp   string `json:"fa_timestamp"`
-}
-
-/*
-工厂
-商品名称
-生产批次
-出厂时间（可以防止黑心商家修改时间）
-工厂名称与厂址
-联系电话
+工厂输入
+工厂名称与ID
+物理地址
+工厂联系方式
+产品型号
+出厂日期
+质检信息
 */
 type Factory_input struct {
-	Fac_productName     string `json:"fac_productName"`
-	Fac_productionbatch string `json:"fac_productionbatch"`
-	Fac_productionTime  string `json:"fac_productionTime"`
-	Fac_factoryName     string `json:"fac_factoryName"`
-	Fac_contactNumber   string `json:"fac_contactNumber"`
-	Fac_Txid            string `json:"fac_txid"`
-	Fac_Timestamp       string `json:"fac_timestamp"`
+    Fac_factoryNameAndID string `json:"fac_factoryNameAndID"` // 工厂名称与ID
+    Fac_physicalAddress  string `json:"fac_physicalAddress"`  // 物理地址
+    Fac_contactNumber    string `json:"fac_contactNumber"`    // 联系方式
+    Fac_productModel     string `json:"fac_productModel"`     // 产品型号
+    Fac_productionDate   string `json:"fac_productionDate"`   // 出厂日期
+    Fac_qualityCheck     string `json:"fac_qualityCheck"`     // 质检信息
+    Fac_Txid             string `json:"fac_txid"`             // 交易ID
+    Fac_Timestamp        string `json:"fac_timestamp"`        // 时间戳
 }
 
 /*
-运输司机
-姓名
-年龄
-电话
-车牌号
-运输记录
+经销商输入
+经销商ID与名称
+经销商地址
+营业执照编号
+入仓时间
+售出时间
+售出标价
 */
-type Driver_input struct {
-	Dr_name      string `json:"dr_name"`
-	Dr_age       string `json:"dr_age"`
-	Dr_phone     string `json:"dr_phone"`
-	Dr_carNumber string `json:"dr_carNumber"`
-	Dr_transport string `json:"dr_transport"`
-	Dr_Txid      string `json:"dr_txid"`
-	Dr_Timestamp string `json:"dr_timestamp"`
+type Retailer_input struct {
+    Ret_retailerNameAndID string `json:"ret_retailerNameAndID"` // 经销商ID与名称
+    Ret_address           string `json:"ret_address"`          // 经销商地址
+    Ret_licenseNumber     string `json:"ret_licenseNumber"`    // 营业执照编号
+    Ret_warehousingTime   string `json:"ret_warehousingTime"`  // 入仓时间
+    Ret_saleTime          string `json:"ret_saleTime"`         // 售出时间
+    Ret_salePrice         string `json:"ret_salePrice"`        // 售出标价
+    Ret_Txid              string `json:"ret_txid"`             // 交易ID
+    Ret_Timestamp         string `json:"ret_timestamp"`        // 时间戳
 }
 
 /*
-商店
-存入时间
-销售时间
-商店名称
-商店位置
-商店电话
+平台输入
+平台名称ID（唯一标识符）
+产品页面
+营业执照编号
+订单号
+支付方式
+交付方式
 */
-type Shop_input struct {
-	Sh_storeTime   string `json:"sh_storeTime"`
-	Sh_sellTime    string `json:"sh_sellTime"`
-	Sh_shopName    string `json:"sh_shopName"`
-	Sh_shopAddress string `json:"sh_shopAddress"`
-	Sh_shopPhone   string `json:"sh_shopPhone"`
-	Sh_Txid        string `json:"sh_txid"`
-	Sh_Timestamp   string `json:"sh_timestamp"`
+type Platform_input struct {
+    Pla_platformNameAndID    string `json:"pla_platformNameAndID"`     // 平台名称与ID
+    Pla_productPage   string `json:"pla_productPage"`    // 产品页面
+    Pla_licenseNumber string `json:"pla_licenseNumber"`  // 营业执照编号
+    Pla_orderID       string `json:"pla_orderID"`        // 订单号
+    Pla_paymentMethod string `json:"pla_paymentMethod"`  // 支付方式
+    Pla_deliveryMode  string `json:"pla_deliveryMode"`   // 交付方式
+    Pla_Txid          string `json:"pla_txid"`           // 交易ID
+    Pla_Timestamp     string `json:"pla_timestamp"`      // 时间戳
+}
+
+/*
+物流输入
+物流公司名称与ID
+物流单号
+物流类型
+派送联系方式
+物流送达记录
+*/
+type Logistic_input struct {
+    Log_logisticsNameAndID string `json:"log_logisticsNameAndID"` // 物流公司名称与ID
+    Log_licenseNumber      string `json:"log_licenseNumber"`      // 营业执照编号
+    Log_trackingNumber     string `json:"log_trackingNumber"`     // 物流单号
+    Log_logisticsType      string `json:"log_logisticsType"`      // 物流类型
+    Log_deliveryContact    string `json:"log_deliveryContact"`    // 派送联系方式
+    Log_deliveryRecord     string `json:"log_deliveryRecord"`     // 物流送达记录
+    Log_Txid               string `json:"log_txid"`               // 交易ID
+    Log_Timestamp          string `json:"log_timestamp"`          // 时间戳
+}
+
+/*
+售后输入
+售后服务中心名称ID（唯一标识符）
+服务中心地址
+联系方式
+售后原因
+售后类型
+售后结果
+*/
+type Service_input struct {
+    Ser_serviceCenterID string `json:"ser_serviceCenterID"` // 售后服务中心名称ID
+    Ser_address         string `json:"ser_address"`         // 服务中心地址
+    Ser_contactNumber   string `json:"ser_contactNumber"`   // 联系方式
+    Ser_reason          string `json:"ser_reason"`          // 售后原因
+    Ser_type            string `json:"ser_type"`            // 售后类型
+    Ser_result          string `json:"ser_result"`          // 售后结果
+    Ser_Txid            string `json:"ser_txid"`            // 交易ID
+    Ser_Timestamp       string `json:"ser_timestamp"`       // 时间戳
 }

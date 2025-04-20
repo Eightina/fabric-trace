@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 保存了农产品上链与查询的函数
+// 保存了电子产品上链与查询的函数
 
 func Uplink(c *gin.Context) {
 	// 与userID不一样，取ID从第二位作为溯源码，即18位，雪花ID的结构如下（转化为10进制共19位）：
@@ -34,9 +34,9 @@ func Uplink(c *gin.Context) {
 	})
 }
 
-// 获取农产品的上链信息
-func GetFruitInfo(c *gin.Context) {
-	res, err := pkg.ChaincodeQuery("GetFruitInfo", c.PostForm("traceability_code"))
+// 获取电子产品的上链信息
+func GetProductinfo(c *gin.Context) {
+	res, err := pkg.ChaincodeQuery("GetProductinfo", c.PostForm("traceability_code"))
 	if err != nil {
 		c.JSON(200, gin.H{
 			"message": "查询失败：" + err.Error(),
@@ -51,10 +51,10 @@ func GetFruitInfo(c *gin.Context) {
 
 }
 
-// 获取用户的农产品ID列表
-func GetFruitList(c *gin.Context) {
+// 获取用户的电子产品ID列表
+func GetProductList(c *gin.Context) {
 	userID, _ := c.Get("userID")
-	res, err := pkg.ChaincodeQuery("GetFruitList", userID.(string))
+	res, err := pkg.ChaincodeQuery("GetProductList", userID.(string))
 	if err != nil {
 		c.JSON(200, gin.H{
 			"message": "query failed" + err.Error(),
@@ -67,9 +67,9 @@ func GetFruitList(c *gin.Context) {
 	})
 }
 
-// 获取所有的农产品信息
-func GetAllFruitInfo(c *gin.Context) {
-	res, err := pkg.ChaincodeQuery("GetAllFruitInfo", "")
+// 获取所有的电子产品信息
+func GetAllProductInfo(c *gin.Context) {
+	res, err := pkg.ChaincodeQuery("GetAllProductInfo", "")
 	fmt.Print("res", res)
 	if err != nil {
 		c.JSON(200, gin.H{
@@ -83,10 +83,10 @@ func GetAllFruitInfo(c *gin.Context) {
 	})
 }
 
-// 获取农产品上链历史
-// func (s *SmartContract) GetFruitHistory(ctx contractapi.TransactionContextInterface, traceability_code string) ([]HistoryQueryResult, error) {
-func GetFruitHistory(c *gin.Context) {
-	res, err := pkg.ChaincodeQuery("GetFruitHistory", c.PostForm("traceability_code"))
+// 获取电子产品上链历史
+// func (s *SmartContract) GetProductHistory(ctx contractapi.TransactionContextInterface, traceability_code string) ([]HistoryQueryResult, error) {
+func GetProductHistory(c *gin.Context) {
+	res, err := pkg.ChaincodeQuery("GetProductHistory", c.PostForm("traceability_code"))
 	if err != nil {
 		c.JSON(200, gin.H{
 			"message": "query failed" + err.Error(),
@@ -106,11 +106,11 @@ func buildArgs(c *gin.Context, farmer_traceability_code string) []string {
 	args = append(args, userID.(string))
 	fmt.Print(userID)
 	// 种植户不需要输入溯源码，其他用户需要，通过雪花算法生成ID
-	if userType == "种植户" {
+	if userType == "工厂" {
 		args = append(args, farmer_traceability_code)
 	} else {
 		// 检查溯源码是否正确
-		res, err := pkg.ChaincodeQuery("GetFruitInfo", c.PostForm("traceability_code"))
+		res, err := pkg.ChaincodeQuery("GetProductinfo", c.PostForm("traceability_code"))
 		if res == "" || err != nil || len(c.PostForm("traceability_code")) != 18 {
 			c.JSON(200, gin.H{
 				"message": "请检查溯源码是否正确!!",
@@ -125,5 +125,6 @@ func buildArgs(c *gin.Context, farmer_traceability_code string) []string {
 	args = append(args, c.PostForm("arg3"))
 	args = append(args, c.PostForm("arg4"))
 	args = append(args, c.PostForm("arg5"))
+	args = append(args, c.PostForm("arg6"))
 	return args
 }

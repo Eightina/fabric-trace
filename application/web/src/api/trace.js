@@ -11,10 +11,10 @@ export function uplink(data) {
   })
 }
 
-// getFruitInfo
-export function getFruitInfo(data) {
+// getProductinfo
+export function getProductinfo(data) {
   return request({
-    url: '/getFruitInfo',
+    url: '/getProductinfo',
     method: 'post',
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -23,10 +23,10 @@ export function getFruitInfo(data) {
   })
 }
 
-// getFruitList
-export function getFruitList(data) {
+// getProductList
+export function getProductList(data) {
   return request({
-    url: '/getFruitList',
+    url: '/getProductList',
     method: 'post',
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -35,10 +35,10 @@ export function getFruitList(data) {
   })
 }
 
-// getAllFruitInfo
-export function getAllFruitInfo(data) {
+// getAllProductInfo
+export function getAllProductInfo(data) {
   return request({
-    url: '/getAllFruitInfo',
+    url: '/getAllProductInfo',
     method: 'post',
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -47,10 +47,10 @@ export function getAllFruitInfo(data) {
   })
 }
 
-// getFruitHistory
-export function getFruitHistory(data) {
+// getProductHistory
+export function getProductHistory(data) {
   return request({
-    url: '/getFruitHistory',
+    url: '/getProductHistory',
     method: 'post',
     headers: {
       'Content-Type': 'multipart/form-data'

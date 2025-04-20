@@ -19,15 +19,15 @@
         "args" :["2"]
     },
     {
-        "invoke":"GetFruitList",
+        "invoke":"GetProductList",
         "args" :["2"]
     },
     {
-        "invoke":"GetFruitInfo",
+        "invoke":"GetProductinfo",
         "args" :["tracecode3"]
     },
     {
-        "invoke":"GetFruitHistory",
+        "invoke":"GetProductHistory",
         "args" :["tracecode3"]
     }
 

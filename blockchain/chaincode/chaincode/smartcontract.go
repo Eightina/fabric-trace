@@ -21,7 +21,7 @@ func (s *SmartContract) RegisterUser(ctx contractapi.TransactionContextInterface
 		UserID:       userID,
 		UserType:     userType,
 		RealInfoHash: realInfoHash,
-		FruitList:    []*Fruit{},
+		ProductList:    []*Product{},
 	}
 	userAsBytes, err := json.Marshal(user)
 	if err != nil {
@@ -34,25 +34,25 @@ func (s *SmartContract) RegisterUser(ctx contractapi.TransactionContextInterface
 	return nil
 }
 
-// 农产品上链，传入用户ID、农产品上链信息
-func (s *SmartContract) Uplink(ctx contractapi.TransactionContextInterface, userID string, traceability_code string, arg1 string, arg2 string, arg3 string, arg4 string, arg5 string) (string, error) {
+// 电子产品上链，传入用户ID、电子产品上链信息
+func (s *SmartContract) Uplink(ctx contractapi.TransactionContextInterface, userID string, traceability_code string, arg1 string, arg2 string, arg3 string, arg4 string, arg5 string, arg6 string) (string, error) {
 	// 获取用户类型
 	userType, err := s.GetUserType(ctx, userID)
 	if err != nil {
 		return "", fmt.Errorf("failed to get user type: %v", err)
 	}
 
-	// 通过溯源码获取农产品的上链信息
-	FruitAsBytes, err := ctx.GetStub().GetState(traceability_code)
+	// 通过溯源码获取电子产品的上链信息
+	ProductAsBytes, err := ctx.GetStub().GetState(traceability_code)
 	if err != nil {
 		return "", fmt.Errorf("failed to read from world state: %v", err)
 	}
-	// 将农产品的信息转换为Fruit结构体
-	var fruit Fruit
-	if FruitAsBytes != nil {
-		err = json.Unmarshal(FruitAsBytes, &fruit)
+	// 将电子产品的信息转换为Product结构体
+	var product Product
+	if ProductAsBytes != nil {
+		err = json.Unmarshal(ProductAsBytes, &product)
 		if err != nil {
-			return "", fmt.Errorf("failed to unmarshal fruit: %v", err)
+			return "", fmt.Errorf("failed to unmarshal product: %v", err)
 		}
 	}
 
@@ -66,75 +66,93 @@ func (s *SmartContract) Uplink(ctx contractapi.TransactionContextInterface, user
 
 	// 获取交易ID
 	txid := ctx.GetStub().GetTxID()
-	// 给农产品信息中加上溯源码
-	fruit.Traceability_code = traceability_code
+	// 给电子产品信息中加上溯源码
+	product.Traceability_code = traceability_code
 	// 不同用户类型的上链的参数不一致
 	switch userType {
-	// 种植户
-	case "种植户":
-		// 将传入的农产品上链信息转换为Farmer_input结构体
-		fruit.Farmer_input.Fa_fruitName = arg1
-		fruit.Farmer_input.Fa_origin = arg2
-		fruit.Farmer_input.Fa_plantTime = arg3
-		fruit.Farmer_input.Fa_pickingTime = arg4
-		fruit.Farmer_input.Fa_farmerName = arg5
-		fruit.Farmer_input.Fa_Txid = txid
-		fruit.Farmer_input.Fa_Timestamp = time
 	// 工厂
 	case "工厂":
-		// 将传入的农产品上链信息转换为Factory_input结构体
-		fruit.Factory_input.Fac_productName = arg1
-		fruit.Factory_input.Fac_productionbatch = arg2
-		fruit.Factory_input.Fac_productionTime = arg3
-		fruit.Factory_input.Fac_factoryName = arg4
-		fruit.Factory_input.Fac_contactNumber = arg5
-		fruit.Factory_input.Fac_Txid = txid
-		fruit.Factory_input.Fac_Timestamp = time
-	// 运输司机
-	case "运输司机":
-		// 将传入的农产品上链信息转换为Driver_input结构体
-		fruit.Driver_input.Dr_name = arg1
-		fruit.Driver_input.Dr_age = arg2
-		fruit.Driver_input.Dr_phone = arg3
-		fruit.Driver_input.Dr_carNumber = arg4
-		fruit.Driver_input.Dr_transport = arg5
-		fruit.Driver_input.Dr_Txid = txid
-		fruit.Driver_input.Dr_Timestamp = time
-	// 商店
-	case "商店":
-		// 将传入的农产品上链信息转换为Shop_input结构体
-		fruit.Shop_input.Sh_storeTime = arg1
-		fruit.Shop_input.Sh_sellTime = arg2
-		fruit.Shop_input.Sh_shopName = arg3
-		fruit.Shop_input.Sh_shopAddress = arg4
-		fruit.Shop_input.Sh_shopPhone = arg5
-		fruit.Shop_input.Sh_Txid = txid
-		fruit.Shop_input.Sh_Timestamp = time
-
+		// 将传入的电子产品上链信息转换为Factory_input结构体
+		product.Factory_input.Fac_factoryNameAndID = arg1 // 工厂名称与ID
+		product.Factory_input.Fac_physicalAddress = arg2  // 物理地址
+		product.Factory_input.Fac_contactNumber = arg3    // 工厂联系方式
+		product.Factory_input.Fac_productModel = arg4     // 产品型号
+		product.Factory_input.Fac_productionDate = arg5   // 出厂日期
+		product.Factory_input.Fac_qualityCheck = arg6     // 质检信息
+		product.Factory_input.Fac_Txid = txid             // 交易ID
+		product.Factory_input.Fac_Timestamp = time        // 时间戳
+	
+	// 经销商
+	case "经销商":
+		// 将传入的电子产品上链信息转换为Retailer_input结构体
+		product.Retailer_input.Ret_retailerNameAndID = arg1 // 经销商名称与ID
+		product.Retailer_input.Ret_address = arg2           // 经销商地址
+		product.Retailer_input.Ret_licenseNumber = arg3     // 营业执照编号
+		product.Retailer_input.Ret_warehousingTime = arg4   // 入仓时间
+		product.Retailer_input.Ret_saleTime = arg5          // 售出时间
+		product.Retailer_input.Ret_salePrice = arg6         // 售出标价
+		product.Retailer_input.Ret_Txid = txid              // 交易ID
+		product.Retailer_input.Ret_Timestamp = time         // 时间戳
+	
+	// 平台
+	case "平台":
+		// 将传入的电子产品上链信息转换为Platform_input结构体
+		product.Platform_input.Pla_platformNameAndID = arg1     // 平台名称ID
+		product.Platform_input.Pla_productPage = arg2    // 产品页面
+		product.Platform_input.Pla_licenseNumber = arg3  // 营业执照编号
+		product.Platform_input.Pla_orderID = arg4        // 订单号
+		product.Platform_input.Pla_paymentMethod = arg5  // 支付方式
+		product.Platform_input.Pla_deliveryMode = arg6   // 交付方式
+		product.Platform_input.Pla_Txid = txid           // 交易ID
+		product.Platform_input.Pla_Timestamp = time      // 时间戳
+	
+	// 物流
+	case "物流":
+		// 将传入的电子产品上链信息转换为Logistic_input结构体
+		product.Logistic_input.Log_logisticsNameAndID = arg1 // 物流公司名称与ID
+		product.Logistic_input.Log_licenseNumber = arg2      // 营业执照编号
+		product.Logistic_input.Log_trackingNumber = arg3     // 物流单号
+		product.Logistic_input.Log_logisticsType = arg4      // 物流类型
+		product.Logistic_input.Log_deliveryContact = arg5    // 派送联系方式
+		product.Logistic_input.Log_deliveryRecord = arg6     // 物流送达记录
+		product.Logistic_input.Log_Txid = txid               // 交易ID
+		product.Logistic_input.Log_Timestamp = time          // 时间戳
+	
+	// 售后
+	case "售后":
+		// 将传入的电子产品上链信息转换为Service_input结构体
+		product.Service_input.Ser_serviceCenterID = arg1 // 售后服务中心名称ID
+		product.Service_input.Ser_address = arg2         // 服务中心地址
+		product.Service_input.Ser_contactNumber = arg3   // 联系方式
+		product.Service_input.Ser_reason = arg4          // 售后原因
+		product.Service_input.Ser_type = arg5            // 售后类型
+		product.Service_input.Ser_result = arg6          // 售后结果
+		product.Service_input.Ser_Txid = txid            // 交易ID
+		product.Service_input.Ser_Timestamp = time       // 时间戳
 	}
 
-	//将农产品的信息转换为json格式
-	fruitAsBytes, err := json.Marshal(fruit)
+	//将电子产品的信息转换为json格式
+	productAsBytes, err := json.Marshal(product)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal fruit: %v", err)
+		return "", fmt.Errorf("failed to marshal product: %v", err)
 	}
-	//将农产品的信息存入区块链
-	err = ctx.GetStub().PutState(traceability_code, fruitAsBytes)
+	//将电子产品的信息存入区块链
+	err = ctx.GetStub().PutState(traceability_code, productAsBytes)
 	if err != nil {
-		return "", fmt.Errorf("failed to put fruit: %v", err)
+		return "", fmt.Errorf("failed to put product: %v", err)
 	}
-	//将农产品存入用户的农产品列表
-	err = s.AddFruit(ctx, userID, &fruit)
+	//将电子产品存入用户的电子产品列表
+	err = s.AddProduct(ctx, userID, &product)
 	if err != nil {
-		return "", fmt.Errorf("failed to add fruit to user: %v", err)
+		return "", fmt.Errorf("failed to add product to user: %v", err)
 
 	}
 
 	return txid, nil
 }
 
-// 添加农产品到用户的农产品列表
-func (s *SmartContract) AddFruit(ctx contractapi.TransactionContextInterface, userID string, fruit *Fruit) error {
+// 添加电子产品到用户的电子产品列表
+func (s *SmartContract) AddProduct(ctx contractapi.TransactionContextInterface, userID string, product *Product) error {
 	userBytes, err := ctx.GetStub().GetState(userID)
 	if err != nil {
 		return fmt.Errorf("failed to read from world state: %v", err)
@@ -148,7 +166,7 @@ func (s *SmartContract) AddFruit(ctx contractapi.TransactionContextInterface, us
 	if err != nil {
 		return err
 	}
-	user.FruitList = append(user.FruitList, fruit)
+	user.ProductList = append(user.ProductList, product)
 	userAsBytes, err := json.Marshal(user)
 	if err != nil {
 		return err
@@ -196,29 +214,29 @@ func (s *SmartContract) GetUserInfo(ctx contractapi.TransactionContextInterface,
 	return &user, nil
 }
 
-// 获取农产品的上链信息
-func (s *SmartContract) GetFruitInfo(ctx contractapi.TransactionContextInterface, traceability_code string) (*Fruit, error) {
-	FruitAsBytes, err := ctx.GetStub().GetState(traceability_code)
+// 获取电子产品的上链信息
+func (s *SmartContract) GetProductinfo(ctx contractapi.TransactionContextInterface, traceability_code string) (*Product, error) {
+	ProductAsBytes, err := ctx.GetStub().GetState(traceability_code)
 	if err != nil {
-		return &Fruit{}, fmt.Errorf("failed to read from world state: %v", err)
+		return &Product{}, fmt.Errorf("failed to read from world state: %v", err)
 	}
 
-	// 将返回的结果转换为Fruit结构体
-	var fruit Fruit
-	if FruitAsBytes != nil {
-		err = json.Unmarshal(FruitAsBytes, &fruit)
+	// 将返回的结果转换为Product结构体
+	var product Product
+	if ProductAsBytes != nil {
+		err = json.Unmarshal(ProductAsBytes, &product)
 		if err != nil {
-			return &Fruit{}, fmt.Errorf("failed to unmarshal fruit: %v", err)
+			return &Product{}, fmt.Errorf("failed to unmarshal product: %v", err)
 		}
-		if fruit.Traceability_code != "" {
-			return &fruit, nil
+		if product.Traceability_code != "" {
+			return &product, nil
 		}
 	}
-	return &Fruit{}, fmt.Errorf("the fruit %s does not exist", traceability_code)
+	return &Product{}, fmt.Errorf("the product %s does not exist", traceability_code)
 }
 
-// 获取用户的农产品ID列表
-func (s *SmartContract) GetFruitList(ctx contractapi.TransactionContextInterface, userID string) ([]*Fruit, error) {
+// 获取用户的电子产品ID列表
+func (s *SmartContract) GetProductList(ctx contractapi.TransactionContextInterface, userID string) ([]*Product, error) {
 	userBytes, err := ctx.GetStub().GetState(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -232,37 +250,37 @@ func (s *SmartContract) GetFruitList(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return nil, err
 	}
-	return user.FruitList, nil
+	return user.ProductList, nil
 }
 
-// 获取所有的农产品信息
-func (s *SmartContract) GetAllFruitInfo(ctx contractapi.TransactionContextInterface) ([]Fruit, error) {
-	fruitListAsBytes, err := ctx.GetStub().GetStateByRange("", "")
+// 获取所有的电子产品信息
+func (s *SmartContract) GetAllProductInfo(ctx contractapi.TransactionContextInterface) ([]Product, error) {
+	productListAsBytes, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
 	}
-	defer fruitListAsBytes.Close()
-	var fruits []Fruit
-	for fruitListAsBytes.HasNext() {
-		queryResponse, err := fruitListAsBytes.Next()
+	defer productListAsBytes.Close()
+	var products []Product
+	for productListAsBytes.HasNext() {
+		queryResponse, err := productListAsBytes.Next()
 		if err != nil {
 			return nil, err
 		}
-		var fruit Fruit
-		err = json.Unmarshal(queryResponse.Value, &fruit)
+		var product Product
+		err = json.Unmarshal(queryResponse.Value, &product)
 		if err != nil {
 			return nil, err
 		}
-		// 过滤非农产品的信息
-		if fruit.Traceability_code != "" {
-			fruits = append(fruits, fruit)
+		// 过滤非电子产品的信息
+		if product.Traceability_code != "" {
+			products = append(products, product)
 		}
 	}
-	return fruits, nil
+	return products, nil
 }
 
-// 获取农产品上链历史
-func (s *SmartContract) GetFruitHistory(ctx contractapi.TransactionContextInterface, traceability_code string) ([]HistoryQueryResult, error) {
+// 获取电子产品上链历史
+func (s *SmartContract) GetProductHistory(ctx contractapi.TransactionContextInterface, traceability_code string) ([]HistoryQueryResult, error) {
 	log.Printf("GetAssetHistory: ID %v", traceability_code)
 
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(traceability_code)
@@ -278,14 +296,14 @@ func (s *SmartContract) GetFruitHistory(ctx contractapi.TransactionContextInterf
 			return nil, err
 		}
 
-		var fruit Fruit
+		var product Product
 		if len(response.Value) > 0 {
-			err = json.Unmarshal(response.Value, &fruit)
+			err = json.Unmarshal(response.Value, &product)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			fruit = Fruit{
+			product = Product{
 				Traceability_code: traceability_code,
 			}
 		}
@@ -308,7 +326,7 @@ func (s *SmartContract) GetFruitHistory(ctx contractapi.TransactionContextInterf
 		record := HistoryQueryResult{
 			TxId:      response.TxId,
 			Timestamp: formattedTime,
-			Record:    &fruit,
+			Record:    &product,
 			IsDelete:  response.IsDelete,
 		}
 		records = append(records, record)
